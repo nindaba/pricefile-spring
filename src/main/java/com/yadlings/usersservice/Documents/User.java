@@ -27,7 +27,7 @@ public class User implements UserDetails {
     private Boolean accountNonLocked = true;
     private Boolean credentialsNonExpired = true;
     private Boolean enabled = true;
-    private List<GrantedAuthority> Authorities = AuthorityUtils.createAuthorityList("BASIC");
+    private List<GrantedAuthority> Authorities = AuthorityUtils.createAuthorityList("ROLE_BASIC");
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Authorities;

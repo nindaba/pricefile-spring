@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias name="userServicePasswordEncoder1" alias="passwordEncoder"/>
+    <bean id="userServicePasswordEncoder1" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+
+    <alias name="userServiceUserService" alias="userService"/>
+    <bean id="userServiceUserService" class="com.yadlings.usersservice.Service.UserService">
+        <constructor-arg name="passwordEncoder" ref="passwordEncoder"/>
+        <constructor-arg name="userRepository" ref="userRepository"/>
+    </bean>
+    <bean id="wiringService" class="com.yadlings.usersservice.Service.WiringService"/>
+</beans>

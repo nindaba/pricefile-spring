@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd">
+
+
+    <security:global-method-security secured-annotations="enabled"/>
+
+    <security:http pattern="/userapi/**/**" authentication-manager-ref="authenticationManager"
+                   entry-point-ref="securityEntryPoint" create-session="stateless">
+        <security:csrf disabled="true"/>
+
+        <security:intercept-url pattern="/login" access="permitAll()"/>
+    </security:http>
+
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider user-service-ref="userDetailService">
+            <security:password-encoder ref="passwordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <bean id="authFilter" class="com.yadlings.usersservice.Filter.AuthFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="secret" value="${jwt.secret}"/>
+        <property name="filterProcessesUrl" value="/userapi/login"/>
+    </bean>
+
+    <bean id="bearerTokenFilter" class="com.yadlings.usersservice.Filter.BearerTokenFilter">
+        <constructor-arg name="secret" value="${jwt.secret}"/>
+    </bean>
+
+
+    <bean id="securityEntryPoint"
+          class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+        <property name="realmName" value="uburaro"/>
+    </bean>
+
+
+    <alias name="userServiceAuthenticationProvider" alias="authenticationProvider"/>
+    <bean id="userServiceAuthenticationProvider"
+          class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+        <property name="passwordEncoder" ref="passwordEncoder"/>
+        <property name="userDetailsService" ref="userDetailService"/>
+    </bean>
+
+    <bean id="userDetailService" class="com.yadlings.usersservice.Service.UserDetailsService">
+        <constructor-arg name="userRepository" ref="userRepository"/>
+    </bean>
+
+</beans>

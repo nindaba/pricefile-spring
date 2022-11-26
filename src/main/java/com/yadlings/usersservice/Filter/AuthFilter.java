@@ -33,18 +33,13 @@ import java.util.stream.Collectors;
 
 @Log4j2
 public class AuthFilter extends UsernamePasswordAuthenticationFilter {
-    private AuthenticationManager authenticationManager;
-    public AuthFilter(AuthenticationManager authenticationManager,String secret){
-        this.authenticationManager = authenticationManager;
-        this.secret = secret;
-    }
     private String secret;
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-        return authenticationManager.authenticate(token);
+        return getAuthenticationManager().authenticate(token);
     }
 
     @Override
@@ -54,15 +49,12 @@ public class AuthFilter extends UsernamePasswordAuthenticationFilter {
         String token = JWT.create()
                 .withSubject(user.getUsername()+" "+user.getId())
                 .withExpiresAt(new Date(System.currentTimeMillis()+ 24 * 60 * 60 * 1000))
-                .withIssuer(request.getRequestURL().toString())
-                .withIssuedAt(new Date())
-                .withClaim("Roles", user.getAuthorities()
-                        .stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList())
-                )
                 .sign(algorithm);
         response.setContentType(MediaType.APPLICATION_JSON.toString());
         new ObjectMapper().writeValue(response.getOutputStream(), Map.of("Access_token",token));
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 }
